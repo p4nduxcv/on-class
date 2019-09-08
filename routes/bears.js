@@ -20,23 +20,16 @@ router.get('/', async (req, res) => {
 
 });
 
-//Get specific one
-/*app.get("/api/bears/1", (req, res) => {
-    var bear = { name: "1 bear", type: "type 1" }
-    res.send(bear);
-});*/
-
 //Get with parameters read
 router.get('/:bearId', (req, res) => {
-    var userGivenBearId = req.params.bearId //request parameters*/
-    // var queryParams= req.query.filterBy; //Query parameters*/
-    let bearFromArray = BearArray.find(b => b.id === parseInt(userGivenBearId)); //loop is going hear find();
+    var userGivenBearId = req.params.bearId 
+   
+    let bearFromArray = BearArray.find(b => b.id === parseInt(userGivenBearId)); 
     if (!bearFromArray) {
         return res.status(404).send("Given bear id is not defined!");
     }
     res.send(bearFromArray);
 });
-
 
 //POST Method  create
 router.post('/', async (req, res) => {
@@ -44,6 +37,7 @@ router.post('/', async (req, res) => {
         return res.status(400).send("Not all mondatory values are set");
     }
     try {
+        //create object from model
         let bear = new Bear({
             name: req.body.name,
             type: req.body.type
@@ -51,38 +45,29 @@ router.post('/', async (req, res) => {
         bear = await bear.save();
         res.send(bear);
     } catch (ex) {
-        return res.status(500).send("Error ", ex.message);
+        return res.status(500).send(ex);
 
     }
-
-    // let addNewArrayObject = {
-    //     id: BearArray.length + 1,
-    //     name: req.body.name
-    // };
-    // BearArray.push(addNewArrayObject);
-    // res.send(addNewArrayObject);
-    //save bear to existing bearArray
-    //res.send("Saved bear to array");
-    //let bearName = req.body.name;
-    //console.log(bearName);
 });
 
 //PUT Method update
-router.put('/:bearId', (req, res) => {
-    let userGivenBearId = req.params.bearId; // find bear id from the request params
-    let bearFromArray = BearArray.find(b => b.id === parseInt(userGivenBearId));// search array to find object with the given bear id
-    if (!bearFromArray) {
-        return res.status(404).send("The given id is not available");
-    }
+router.put('/:bearId', async (req, res) => {
     if (!req.body.name) {
-        return res.status(404).send("Values are not send in the request body");
+        return res
+            .status(400)
+            .send("Mandotary values are not ncluded in requested body")
     }
-    bearFromArray.name = req.body.name;
-    res.send(bearFromArray);
-    // modify that object
-    // send the modified bear object to the client
-    // try to send a 404 error for bear id which doesnt exist and a 400 error if request
-    // does not contain required values 
+    try {
+        let bear = await Bear.findById(req.params.bearId);
+        let bear = new Bear({
+            name: req.body.name,
+        });
+        bear = await bear.save();
+        res.send(bear);
+    }
+    catch (ex) {
+        return res.status(500).send(ex);
+    }
 });
 
 //DELETE Method delete

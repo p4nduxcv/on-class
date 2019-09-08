@@ -14,7 +14,7 @@ mongoose
 
 app.use(express.json()); //body parser , read JSON 
 
-app.use("/api/bears", bears);
+app.use("/api/bears", bears); // if /api/bears is called use bears file
 app.use("/", home);
 
 app.listen(PORT, () => {
