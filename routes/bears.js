@@ -1,16 +1,23 @@
 const express = require("express");
 const router = express.Router(); //creating routing in different file
+const Bear = require("../models/bear");
 
-let BearArray = [
-    { id: 1, name: "01 BEAR" },
-    { id: 2, name: "02 BEAR" },
-    { id: 3, name: "03 BEAR" }
-]
+// let BearArray = [
+//     { id: 1, name: "01 BEAR" },
+//     { id: 2, name: "02 BEAR" },
+//     { id: 3, name: "03 BEAR" }
+// ]
 
 //Get all Operations
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     // var bears = ["1 bear", "2 bear", "3 bear", "4 bear"];
-    res.send(BearArray);
+    try {
+        let bears = await Bear.find().sort({ name: "asc" });
+        res.send(BearArray);
+    } catch (ex) {
+        return res.status(500).send("Error ", ex.message);
+    }
+
 });
 
 //Get specific one
@@ -32,17 +39,32 @@ router.get('/:bearId', (req, res) => {
 
 
 //POST Method  create
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
+    if (!req.body.name) {
+        return res.status(400).send("Not all mondatory values are set");
+    }
+    try {
+        let bear = new Bear({
+            name: req.body.name,
+            type: req.body.type
+        });
+        bear = await bear.save();
+        res.send(bear);
+    } catch (ex) {
+        return res.status(500).send("Error ", ex.message);
+
+    }
+
+    // let addNewArrayObject = {
+    //     id: BearArray.length + 1,
+    //     name: req.body.name
+    // };
+    // BearArray.push(addNewArrayObject);
+    // res.send(addNewArrayObject);
     //save bear to existing bearArray
     //res.send("Saved bear to array");
     //let bearName = req.body.name;
     //console.log(bearName);
-    let addNewArrayObject = {
-        id: BearArray.length + 1,
-        name: req.body.name
-    };
-    BearArray.push(addNewArrayObject);
-    res.send(addNewArrayObject);
 });
 
 //PUT Method update
